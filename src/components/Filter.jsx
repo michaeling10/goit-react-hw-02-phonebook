@@ -1,7 +1,9 @@
+import './styles/Filter.css';
+
 const Filter = ({ filterValue, handleSearch }) => {
   return (
     <div className="filter">
-      <p>Find Contact by name</p>
+      <p className="filter-msg">Find Contact by name</p>
       <input
         type="text"
         placeholder="Search..."

@@ -1,3 +1,5 @@
+import './styles/ContactList.css';
+
 const ContactList = ({ contacts, deleteContact }) => {
   return (
     <ul>

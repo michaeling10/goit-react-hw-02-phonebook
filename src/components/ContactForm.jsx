@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import './styles/ContactForm.css';
 
 const ContactForm = ({ onAddContact }) => {
   const { register, handleSubmit, reset } = useForm();
@@ -12,7 +13,7 @@ const ContactForm = ({ onAddContact }) => {
     <div>
       <form className="main-form" onSubmit={handleSubmit(onSubmit)}>
         <div>
-          <div>
+          <div className="input-name">
             <label className="label">Name</label>
             <input
               type="text"
@@ -26,7 +27,7 @@ const ContactForm = ({ onAddContact }) => {
               required
             />
           </div>
-          <div>
+          <div className="input-number">
             <label className="label">Number</label>
             <input
               type="tel"
@@ -41,7 +42,7 @@ const ContactForm = ({ onAddContact }) => {
             />
           </div>
         </div>
-        <input type="submit" value="Add contact" />
+        <input className="btn-submit" type="submit" value="Add contact" />
       </form>
     </div>
   );

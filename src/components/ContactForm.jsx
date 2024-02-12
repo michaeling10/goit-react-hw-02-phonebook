@@ -1,72 +1,112 @@
-import { useForm } from 'react-hook-form';
+import React, { Component } from 'react';
 import './styles/ContactForm.css';
 
-const ContactForm = ({ onAddContact }) => {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm();
+const INITIAL_STATE = {
+  name: '',
+  number: '',
+  errors: {
+    name: '',
+    number: '',
+  },
+};
 
-  const onSubmit = data => {
-    onAddContact(data.name, data.number);
-    reset();
+class ContactForm extends Component {
+  state = { ...INITIAL_STATE };
+
+  validateField = (name, value) => {
+    let message = '';
+
+    if (name === 'name') {
+      const isValid =
+        /^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$/.test(
+          value
+        );
+      message = isValid
+        ? ''
+        : "Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan";
+    } else if (name === 'number') {
+      const isValid =
+        /^\+?\d{1,4}([-.\s]?\d{1,3})?([-.\s]?\d{1,4})([-.\s]?\d{1,4})([-.\s]?\d{1,9})?$/.test(
+          value
+        );
+      message = isValid
+        ? ''
+        : 'Phone number must be digits and can contain spaces, dashes, parentheses and can start with +';
+    }
+
+    this.setState(prevState => ({
+      errors: {
+        ...prevState.errors,
+        [name]: message,
+      },
+    }));
+
+    return message === '';
   };
 
-  return (
-    <div>
-      <form className="main-form" onSubmit={handleSubmit(onSubmit)}>
-        <div>
+  handleChange = event => {
+    const { name, value } = event.target;
+    this.setState({ [name]: value }, () => this.validateField(name, value));
+  };
+
+  handleSubmit = event => {
+    event.preventDefault();
+    const { name, number, errors } = this.state;
+
+    const isNameValid = this.validateField('name', name);
+    const isNumberValid = this.validateField('number', number);
+
+    const formIsValid =
+      isNameValid && isNumberValid && !errors.name && !errors.number;
+
+    if (!formIsValid) {
+      console.error('Validation Failed');
+      return;
+    }
+
+    this.props.onAddContact(name, number);
+    this.reset();
+  };
+
+  reset = () => {
+    this.setState({ ...INITIAL_STATE });
+  };
+
+  render() {
+    const { name, number, errors } = this.state;
+
+    return (
+      <div>
+        <form className="main-form" onSubmit={this.handleSubmit}>
           <div className="input-name">
             <label className="label">Name</label>
             <input
               type="text"
-              {...register('name', {
-                pattern: {
-                  value:
-                    /^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$/,
-                  message:
-                    "Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan",
-                },
-              })}
-              className={`${
-                errors.name ? 'incorrect-name' : 'input-name-correct'
-              }`}
+              className={errors.name ? 'incorrect-name' : 'input-name-correct'}
               name="name"
-              title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+              value={name}
+              onChange={this.handleChange}
               required
             />
-            {errors.name && <p className="incorrect">{errors.name.message}</p>}
+            {errors.name && <p className="incorrect">{errors.name}</p>}
           </div>
           <div className="input">
             <label className="label">Number</label>
             <input
               type="tel"
-              {...register('number', {
-                pattern: {
-                  value:
-                    /^\+?\d{1,4}([-.\s]?\d{1,3})?([-.\s]?\d{1,4})([-.\s]?\d{1,4})([-.\s]?\d{1,9})?$/,
-                  message:
-                    'Phone number must be digits and can contain spaces, dashes, parentheses and can start with +',
-                },
-              })}
-              className={`${
-                errors.number ? 'incorrect' : 'input-number-correct'
-              }`}
+              className={errors.number ? 'incorrect' : 'input-number-correct'}
               name="number"
-              title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+              value={number}
+              onChange={this.handleChange}
               required
             />
-            {errors.number && (
-              <p className="incorrect">{errors.number.message}</p>
-            )}
+            {errors.number && <p className="incorrect">{errors.number}</p>}
           </div>
-        </div>
-        <input className="btn-submit" type="submit" value="Add contact" />
-      </form>
-    </div>
-  );
-};
+          <input className="btn-submit" type="submit" value="Add contact" />
+        </form>
+      </div>
+    );
+  }
+}
 
 export default ContactForm;
